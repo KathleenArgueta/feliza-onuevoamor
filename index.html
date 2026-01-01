@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Para mi amor 💖</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        :root {
+            --pink: #ff4d6d;
+        }
+
+        body {
+            margin: 0;
+            font-family: Georgia, serif;
+            background: black;
+            color: white;
+            overflow: hidden;
+        }
+
+        section {
+            display: none;
+            min-height: 100vh;
+            padding: clamp(20px, 5vw, 60px);
+            box-sizing: border-box;
+        }
+
+        .active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .top {
+            justify-content: flex-start;
+            padding-top: 10vh;
+        }
+
+        .center {
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: clamp(28px, 5vw, 48px);
+        }
+
+        h2 {
+            max-width: 800px;
+            text-align: center;
+        }
+
+        button {
+            margin-top: 40px;
+            padding: 15px 32px;
+            font-size: 18px;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            background: var(--pink);
+            color: white;
+        }
+
+        .envelope {
+            font-size: 90px;
+            cursor: pointer;
+        }
+
+        #letter {
+            display: none;
+            background: white;
+            color: black;
+            padding: 30px;
+            max-width: 700px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .roses {
+            font-size: 90px;
+            opacity: 0;
+            transform: scale(0.6);
+            transition: all 3s ease;
+        }
+
+        .roses.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- AUDIO -->
+    <audio id="fireSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_8c4c6f6a1f.mp3"></audio>
+    <audio id="music" src="song.mp3" loop></audio>
+
+    <!-- PANTALLA 1 -->
+    <section id="screen1" class="active top">
+        <canvas id="fireworks"></canvas>
+        <h1>🎆 Feliz año nuevo, mi amor 🎆</h1>
+        <button onclick="startExperience()">¿Listo para comenzarlo juntos?</button>
+    </section>
+
+    <!-- PANTALLA 2 -->
+    <section id="screen2" class="center">
+        <h2>🔔 Tienes una notificación</h2>
+        <div class="envelope" onclick="openLetter()">✉️</div>
+        <p>Ábreme</p>
+
+        <div id="letter">
+            <p id="typedText"></p>
+            <button onclick="goTo(3)">¿Continuar?</button>
+        </div>
+    </section>
+
+    <!-- PANTALLA 3 -->
+    <section id="screen3" class="center">
+        <h2>
+            Te agradezco por nunca haber dejado apagar tu presencia hacía mis ojos
+            y por hacerme sentir amada cada día.<br><br>
+            Gracias por comenzar este año siendo la compañía que tanto disfruto tener.
+        </h2>
+
+        <button onclick="goTo(4)">¿Listo para ver tu regalo?</button>
+    </section>
+
+    <!-- PANTALLA 4 -->
+    <section id="screen4" class="center">
+        <div id="roses" class="roses">🌹🌹🌹</div>
+        <h2>
+            No te las puedo dar ahora,<br>
+            pero gracias por comenzar conmigo el año, bebé 💖
+        </h2>
+    </section>
+
+    <script>
+        /* TEXTO CARTA */
+        const letterText = `
+Feliz año nuevo mi chiquito 🥺.
+
+Te debo el abrazo y un beso enorme, pero espero que aún así lo sientas.
+
+Estar "solito", luchando cada día por cumplir tus sueños en otro país es de valientes
+y te admiro mucho por eso. Pero no lo estás.
+Muchas personas, genuinamente, te queremos chelito. 🤍
+
+Te mando un beso, y que en este nuevo año:
+1. Nos veamos por montón
+2. No me embaraces
+3. Seamos la compañía del otro este y muchos años más :)
+`;
+
+        function show(id) {
+            document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+            document.getElementById(id).classList.add("active");
+        }
+
+        function startExperience() {
+            document.getElementById("fireSound").play();
+            show("screen2");
+        }
+
+        function openLetter() {
+            document.getElementById("letter").style.display = "block";
+
+            const music = document.getElementById("music");
+
+            // Espera a que cargue el audio para poder mover el tiempo
+            music.currentTime = 30;
+            music.play();
+
+            typeWriter();
+        }
+
+
+        function goTo(n) {
+            show("screen" + n);
+            if (n === 4) {
+                setTimeout(() => document.getElementById("roses").classList.add("show"), 500);
+            }
+        }
+
+        /* MAQUINA DE ESCRIBIR */
+        let i = 0;
+        function typeWriter() {
+            if (i < letterText.length) {
+                document.getElementById("typedText").innerHTML +=
+                    letterText.charAt(i).replace("\n", "<br>");
+                i++;
+                setTimeout(typeWriter, 35);
+            }
+        }
+
+        /* FUEGOS ARTIFICIALES VISIBLES */
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+        resize();
+        window.addEventListener("resize", resize);
+
+        let particles = [];
+
+        function resize() {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+        }
+
+        function firework() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height * 0.4;
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 7,
+                    vy: (Math.random() - 0.5) * 7,
+                    life: 120
+                });
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life--;
+                ctx.fillStyle = "white";
+                ctx.fillRect(p.x, p.y, 3, 3);
+                if (p.life <= 0) particles.splice(i, 1);
+            });
+            requestAnimationFrame(animate);
+        }
+
+        setInterval(firework, 700);
+        animate();
+    </script>
+
+</body>
+
+</html>
